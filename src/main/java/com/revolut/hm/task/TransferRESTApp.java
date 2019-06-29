@@ -4,18 +4,20 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.revolut.hm.task.config.GuiceModule;
-import com.revolut.hm.task.controller.ProductController;
-import com.revolut.hm.task.repository.ProductRepository;
+import com.revolut.hm.task.controller.TransferController;
+import com.revolut.hm.task.repository.AccountRepository;
 
 public class TransferRESTApp {
 
     private static final String TEST_PERSISTENCE_UNIT_NAME = "transferRestDB";
-    private static final String REPOSITORIES_BASE_PACKAGE_NAME = ProductRepository.class.getPackage().getName();
+    private static final String REPOSITORIES_BASE_PACKAGE_NAME = "com.revolut.hm.task.repository";
 
     public static void main(String[] args) {
-        Injector injector = Guice.createInjector(Stage.PRODUCTION,
-                new GuiceModule(TEST_PERSISTENCE_UNIT_NAME, REPOSITORIES_BASE_PACKAGE_NAME));
-        ProductController productController = injector.getInstance(ProductController.class);
-        productController.startRoutes();
+        Injector injector = Guice.createInjector(new GuiceModule(TEST_PERSISTENCE_UNIT_NAME, REPOSITORIES_BASE_PACKAGE_NAME));
+
+        //AccountRepository accountRepository = injector.getInstance(AccountRepository.class);
+        TransferController transferController = injector.getInstance(TransferController.class);
+        transferController.startTransferRoutes();
+
     }
 }
