@@ -14,21 +14,22 @@ public class Transaction {
     @Column(name = "TRANSACTION_AMOUNT")
     private Long transactionAmount;
 
-    @Column(name = "ACCOUNT_ID")
-    private Long accountId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ACCOUNT_ID")
+    private Account account;
 
     public Transaction() {
     }
 
-    public Transaction(Long id, Long transactionAmount, Long accountId) {
-        this.id = id;
+    public Transaction(Long transactionAmount, Account account) {
         this.transactionAmount = transactionAmount;
-        this.accountId = accountId;
+        this.account = account;
     }
 
-    public Transaction(Long transactionAmount, Long accountId) {
+    public Transaction(Long id, Long transactionAmount, Account account) {
+        this.id = id;
         this.transactionAmount = transactionAmount;
-        this.accountId = accountId;
+        this.account = account;
     }
 
     public Long getId() {
@@ -47,12 +48,12 @@ public class Transaction {
         this.transactionAmount = transactionAmount;
     }
 
-    public Long getAccountId() {
-        return accountId;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     @Override
@@ -60,8 +61,8 @@ public class Transaction {
         return "Transaction{" +
                 "id=" + id +
                 ", transactionAmount=" + transactionAmount +
-                ", accountId=" + accountId +
+                ", account=" + account +
                 '}';
     }
-    
+
 }

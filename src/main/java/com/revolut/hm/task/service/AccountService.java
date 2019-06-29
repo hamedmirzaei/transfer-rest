@@ -26,7 +26,7 @@ public class AccountService {
     }
 
     /**
-     * @throws IllegalStateException if the entity exists.
+     * @throws ResourceAlreadyExistsException if the entity exists.
      */
     @Transactional
     public void add(Account accountDetails) {
@@ -38,7 +38,7 @@ public class AccountService {
     }
 
     /**
-     * @throws IllegalStateException if one of the entities exists.
+     * @throws ResourceAlreadyExistsException if one of the entities exists.
      */
     @Transactional
     public void addAll(Collection<Account> accounts) {

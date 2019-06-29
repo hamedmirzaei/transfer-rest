@@ -1,6 +1,8 @@
 package com.revolut.hm.task.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "ACCOUNT")
@@ -17,18 +19,27 @@ public class Account {
     @Column(name = "BALANCE")
     private Long balance;
 
+    @OneToMany(
+            mappedBy = "account",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Transaction> transactions = new ArrayList<>();
+
     public Account() {
     }
 
-    public Account(Long id, String accountNumber, Long balance) {
+    public Account(String accountNumber, Long balance, List<Transaction> transactions) {
+        this.accountNumber = accountNumber;
+        this.balance = balance;
+        this.transactions = transactions;
+    }
+
+    public Account(Long id, String accountNumber, Long balance, List<Transaction> transactions) {
         this.id = id;
         this.accountNumber = accountNumber;
         this.balance = balance;
-    }
-
-    public Account(String accountNumber, Long balance) {
-        this.accountNumber = accountNumber;
-        this.balance = balance;
+        this.transactions = transactions;
     }
 
     public Long getId() {
@@ -55,13 +66,21 @@ public class Account {
         this.balance = balance;
     }
 
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
     @Override
     public String toString() {
         return "Account{" +
                 "id=" + id +
                 ", accountNumber='" + accountNumber + '\'' +
                 ", balance=" + balance +
+                ", transactions=" + transactions +
                 '}';
     }
-    
 }
