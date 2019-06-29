@@ -5,8 +5,8 @@ import com.revolut.hm.task.exception.DeleteFailedException;
 import com.revolut.hm.task.exception.ResourceAlreadyExistsException;
 import com.revolut.hm.task.exception.ResourceNotFoundException;
 import com.revolut.hm.task.model.Account;
+import com.revolut.hm.task.model.Transaction;
 import com.revolut.hm.task.service.AccountService;
-import com.revolut.hm.task.service.TransactionService;
 
 import javax.inject.Inject;
 
@@ -16,9 +16,6 @@ public class TransferController {
 
     @Inject
     private AccountService accountService;
-
-    @Inject
-    private TransactionService transactionService;
 
     public void startTransferRoutes() {
 
@@ -32,7 +29,7 @@ public class TransferController {
         path("/accounts", () -> {
             // Get all accounts
             get("", "application/json", (request, response) ->
-                    accountService.listAll(), gson::toJson);
+                    accountService.getAll(), gson::toJson);
 
             // Get an account
             get("/:id", "application/json", (request, response) ->
@@ -61,12 +58,30 @@ public class TransferController {
                 get("", "application/json", (request, response) ->
                         accountService.get(Long.parseLong(request.params(":id"))).getTransactions(), gson::toJson);
 
+                // Get one transaction of an account
+                get("/:tid", "application/json", (request, response) ->
+                        accountService.getTransaction(Long.parseLong(request.params(":id")), Long.parseLong(request.params(":tid"))), gson::toJson);
+
+                // Add a transaction to an account
+                post("", "application/json", (request, response) -> {
+                    Transaction transaction = gson.fromJson(request.body(), Transaction.class);
+                    return accountService.addTransaction(Long.parseLong(request.params(":id")), transaction);
+                }, gson::toJson);
+
+                // Update a transaction of An account
+                put("", "application/json", (request, response) -> {
+                    Transaction transaction = gson.fromJson(request.body(), Transaction.class);
+                    return accountService.updateTransaction(Long.parseLong(request.params(":id")), transaction);
+                }, gson::toJson);
+
+                // Delete a transaction of an account
+                delete("/:id", "application/json", (request, response) -> {
+                    accountService.delete(Long.parseLong(request.params(":id")));
+                    return "OK";
+                });
+
             });
 
-        });
-
-        get("/transactions", (request, response) -> {
-            return transactionService.listAll();
         });
 
     }

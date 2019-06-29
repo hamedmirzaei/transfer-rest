@@ -7,8 +7,6 @@ import com.revolut.hm.task.repository.TransactionRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.Collection;
-import java.util.List;
 
 public class TransactionService {
 
@@ -19,33 +17,26 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction get(long id) {
-        return transactionRepository.findOne(id);
-    }
-
-    public List<Transaction> listAll() {
-        return transactionRepository.findAll();
+    /**
+     * @throws ResourceNotFoundException if the transaction does not exist.
+     */
+    public Transaction get(Long transactionId) throws ResourceNotFoundException {
+        Transaction transaction = transactionRepository.findById(transactionId);
+        if (transaction == null)
+            throw new ResourceNotFoundException("Transaction", "id", transactionId);
+        return transaction;
     }
 
     /**
-     * @throws IllegalStateException if the entity exists.
+     * @throws ResourceAlreadyExistsException if the transaction exists.
      */
     @Transactional
-    public void add(Transaction transaction) {
-        boolean exists = transactionRepository.exists(transaction.getId());
-        if (exists)
-            throw new ResourceAlreadyExistsException("Transaction", "id", transaction.getId());
-        transactionRepository.save(transaction);
-    }
-
-    /**
-     * @throws IllegalStateException if one of the entities exists.
-     */
-    @Transactional
-    public void addAll(Collection<Transaction> transactions) {
-        transactions.parallelStream().forEach(transaction -> {
-            add(transaction);
-        });
+    public Transaction add(Transaction transactionDetails) throws ResourceAlreadyExistsException {
+        Transaction transaction = transactionRepository.findById(transactionDetails.getId());
+        if (transaction != null) {
+            throw new ResourceAlreadyExistsException("Transaction", "id", transactionDetails.getId());
+        }
+        return transactionRepository.save(transactionDetails);
     }
 
 }

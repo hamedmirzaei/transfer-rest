@@ -8,9 +8,7 @@ import com.revolut.hm.task.exception.ResourceAlreadyExistsException;
 import com.revolut.hm.task.model.Account;
 import com.revolut.hm.task.model.Transaction;
 import com.revolut.hm.task.repository.AccountRepository;
-import com.revolut.hm.task.repository.TransactionRepository;
 import com.revolut.hm.task.service.AccountService;
-import com.revolut.hm.task.service.TransactionService;
 import org.junit.Before;
 import org.junit.Test;
 
