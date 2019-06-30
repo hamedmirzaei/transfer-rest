@@ -1,11 +1,11 @@
 # REST API using SparkJava + Google Guice (Inject and Repository) + HSQLDB + Hibernate
-This is a simple financial business API implemented using SparkJava + Google Guice (Inject and Repository) + HSQLDB + Hibernate.
+This is a simple financial business Rest API implemented using SparkJava + Google Guice (Inject and Repository) + HSQLDB + Hibernate.
 
 ## Libraries and Tools
 * [Web Framework] [`SparkJava`](http://sparkjava.com/)
 * [DI Framework] [`Google Guice`](https://github.com/google/guice)
 * [ORM Framework] [`Hibernate`](https://hibernate.org/)
-* [JPA Layer] [`Google Guice-Repository`](https://code.google.com/archive/p/guice-repository/wikis/DevGuide.wiki) which uses `Spring Data JPA`
+* [JPA Layer] [`Google Guice-Repository`](https://code.google.com/archive/p/guice-repository/wikis/DevGuide.wiki) which uses [`Spring Data JPA`](https://spring.io/projects/spring-data-jpa) as the underlying data abstraction layer
 * [In-Memory Database] [`HSQLDB`](http://hsqldb.org/)
 * [Automatic Test Framework] [`JUnit`](https://junit.org/junit5/)
 
