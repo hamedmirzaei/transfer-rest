@@ -9,8 +9,6 @@ public class GuiceModule extends AbstractModule {
     private String repositoriesBasePackageName;
 
     public GuiceModule(String persistenceUnitName, String repositoriesBasePackageName) {
-        System.out.println("persistenceUnitName: " + persistenceUnitName);
-        System.out.println("repositoriesBasePackageName: " + repositoriesBasePackageName);
         this.persistenceUnitName = persistenceUnitName;
         this.repositoriesBasePackageName = repositoriesBasePackageName;
     }

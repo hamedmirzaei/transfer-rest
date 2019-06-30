@@ -7,13 +7,14 @@ import com.revolut.hm.task.repository.TransactionRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class TransactionService {
 
+    @Inject
     private TransactionRepository transactionRepository;
 
-    @Inject
-    public TransactionService(TransactionRepository transactionRepository) {
+    public TransactionService() {
         this.transactionRepository = transactionRepository;
     }
 
@@ -25,6 +26,10 @@ public class TransactionService {
         if (transaction == null)
             throw new ResourceNotFoundException("Transaction", "id", transactionId);
         return transaction;
+    }
+
+    public List<Transaction> getAll() {
+        return transactionRepository.findAll();
     }
 
     /**
@@ -39,4 +44,18 @@ public class TransactionService {
         return transactionRepository.save(transactionDetails);
     }
 
+    @Transactional
+    public void deleteAll() {
+        transactionRepository.deleteAll();
+    }
+
+    @Transactional
+    public Transaction update(Transaction transactionDetails) {
+        Transaction transaction = get(transactionDetails.getId());
+
+        transaction.setTransactionAmount(transactionDetails.getTransactionAmount());
+
+        Transaction updatedTransaction = transactionRepository.save(transaction);
+        return updatedTransaction;
+    }
 }
