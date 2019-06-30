@@ -1,6 +1,7 @@
 package com.revolut.hm.task;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -12,6 +13,7 @@ import com.revolut.hm.task.model.Transaction;
 import com.revolut.hm.task.repository.AccountRepository;
 import com.revolut.hm.task.service.AccountService;
 import com.revolut.hm.task.service.TransactionService;
+import com.revolut.hm.task.utils.ExcludeProxiedFields;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +22,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static spark.Spark.awaitInitialization;
 import static spark.Spark.stop;
 
@@ -31,8 +31,10 @@ public class SparkAPITest {
     private final String TEST_PERSISTENCE_UNIT_NAME = "transferRestDB";
     private final String REPOSITORIES_BASE_PACKAGE_NAME = AccountRepository.class.getPackage().getName();
 
-    private final Type listAccountType = new TypeToken<List<Account>>(){}.getType();
-    private final Type listTransactionType = new TypeToken<List<Transaction>>(){}.getType();
+    private final Type listAccountType = new TypeToken<List<Account>>() {
+    }.getType();
+    private final Type listTransactionType = new TypeToken<List<Transaction>>() {
+    }.getType();
 
     private Injector injector;
     private AccountService accountService;
@@ -50,7 +52,7 @@ public class SparkAPITest {
         accountService = injector.getInstance(AccountService.class);
         transactionService = injector.getInstance(TransactionService.class);
         transferController = injector.getInstance(TransferController.class);
-        gson = new Gson();
+        gson = new GsonBuilder().setExclusionStrategies(new ExcludeProxiedFields()).create();
     }
 
     @Before
@@ -109,7 +111,15 @@ public class SparkAPITest {
     }
 
     @Test
-    public void testSaveAccount() {
+    public void testGetAccountNotFound() {
+        String testUrl = "/accounts/2";
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("GET", testUrl, null);
+        assertEquals(404, res.status);
+    }
+
+    @Test
+    public void testAddAccount() {
         String testUrl = "/accounts";
         Account account2 = new Account(2l, "22222", 200000l, null);
 
@@ -119,6 +129,15 @@ public class SparkAPITest {
         Account account = gson.fromJson(res.body, Account.class);
         assertNotNull(account);
         assertTrue(account.getId() == 2);
+    }
+
+    @Test
+    public void testAddAccountDuplicateId() {
+        String testUrl = "/accounts";
+        Account account = new Account(1l, "22222", 200000l, null);
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("POST", testUrl, gson.toJson(account));
+        assertEquals(403, res.status);
     }
 
     @Test
@@ -147,6 +166,14 @@ public class SparkAPITest {
     }
 
     @Test
+    public void testDeleteAccountNotFound() {
+        String testUrl = "/accounts/2";
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("DELETE", testUrl, null);
+        assertEquals(404, res.status);
+    }
+
+    @Test
     public void testGetAllTransactionsOfAccount() {
         String testUrl = "/accounts/1/transactions";
 
@@ -169,4 +196,87 @@ public class SparkAPITest {
         assertNotNull(transaction);
         assertTrue(transaction.getId() == 1);
     }
+
+    @Test
+    public void testGetSingleTransactionOfAccountNotFound1() {
+        String testUrl = "/accounts/1/transactions/3";
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("GET", testUrl, null);
+        assertEquals(404, res.status);
+    }
+
+    @Test
+    public void testGetSingleTransactionOfAccountNotFound2() {
+        String testUrl = "/accounts/2/transactions/1";
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("GET", testUrl, null);
+        assertEquals(404, res.status);
+    }
+
+    @Test
+    public void testAddTransaction() {
+        String testUrl = "/accounts/1/transactions";
+        Account account = accountService.get(1l);
+        Transaction transaction = new Transaction(3l, 3000l, account);
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("POST", testUrl, gson.toJson(transaction));
+        assertEquals(200, res.status);
+
+        Account updatedAccount = accountService.get(1l);
+        assertNotNull(updatedAccount);
+        assertTrue(updatedAccount.getTransactions().size() == 3);
+    }
+
+    @Test
+    public void testAddTransactionDuplicate() {
+        String testUrl = "/accounts/1/transactions";
+        Account account = accountService.get(1l);
+        Transaction transaction = new Transaction(1l, 3000l, account);
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("POST", testUrl, gson.toJson(transaction));
+        assertEquals(403, res.status);
+    }
+
+    @Test
+    public void testUpdateTransaction() {
+        String testUrl = "/accounts/1/transactions";
+        Transaction transaction = transactionService.get(1l);
+
+        transaction.setTransactionAmount(3000l);
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("PUT", testUrl, gson.toJson(transaction));
+        assertEquals(200, res.status);
+
+        Transaction transactionUpdated = gson.fromJson(res.body, Transaction.class);
+        assertNotNull(transactionUpdated);
+        assertTrue(transactionUpdated.getTransactionAmount() == 3000l);
+    }
+
+    @Test
+    public void testUpdateTransactionDoNotMatch() {
+        String testUrl = "/accounts/2/transactions";
+        Transaction transaction = transactionService.get(1l);
+
+        Account account2 = new Account();
+        account2.setId(2l);
+        account2.setAccountNumber("22222");
+        account2.setBalance(2000000l);
+        account2.setTransactions(Arrays.asList(new Transaction(3l, 3000l, account2),
+                new Transaction(4l, 4000l, account2)));
+        accountService.add(account2);
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("PUT", testUrl, gson.toJson(transaction));
+        assertEquals(403, res.status);
+    }
+
+    @Test
+    public void testDeleteTransaction() {
+        String testUrl = "/accounts/1/transactions/1";
+
+        ApiTestUtils.TestResponse res = ApiTestUtils.request("DELETE", testUrl, null);
+        assertEquals(200, res.status);
+
+        assertTrue(res.body.equals("OK"));
+    }
+
 }

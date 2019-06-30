@@ -10,6 +10,7 @@ import com.revolut.hm.task.model.Account;
 import com.revolut.hm.task.model.Transaction;
 import com.revolut.hm.task.service.AccountService;
 import com.revolut.hm.task.utils.ExcludeProxiedFields;
+import org.springframework.http.HttpStatus;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -59,11 +60,8 @@ public class TransferController {
 
             path("/:id/transactions", () -> {
                 // Get all transactions of an account
-                get("", "application/json", (request, response) -> {
-                    List<Transaction> allTransactions = accountService.getAllTransactions(Long.parseLong(request.params(":id")));
-                    gson.toJson(allTransactions);
-                    return allTransactions;
-                }, gson::toJson);
+                get("", "application/json", (request, response) ->
+                        accountService.getAllTransactions(Long.parseLong(request.params(":id"))), gson::toJson);
 
                 // Get one transaction of an account
                 get("/:tid", "application/json", (request, response) ->
@@ -107,21 +105,26 @@ public class TransferController {
                     exception.getResourceName2() + " with field " + exception.getFieldName2() +
                     "=" + exception.getFieldValue2() +
                     " is already exists</h1></body></html>");
+            response.status(403);
+
         });
 
         exception(ResourceAlreadyExistsException.class, (exception, request, response) -> {
             response.body("<html><body><h1>" + exception.getResourceName() + " with field " + exception.getFieldName() +
                     "=" + exception.getFieldValue() + " is already exists</h1></body></html>");
+            response.status(403);
         });
 
         exception(ResourceNotFoundException.class, (exception, request, response) -> {
             response.body("<html><body><h1>" + exception.getResourceName() + " with field " + exception.getFieldName() +
                     "=" + exception.getFieldValue() + " does not exists</h1></body></html>");
+            response.status(404);
         });
 
         exception(DeleteFailedException.class, (exception, request, response) -> {
             response.body("<html><body><h1>" + exception.getResourceName() + " with field " + exception.getFieldName() +
                     "=" + exception.getFieldValue() + " failed to be deleted</h1></body></html>");
+            response.status(405);
         });
     }
 }

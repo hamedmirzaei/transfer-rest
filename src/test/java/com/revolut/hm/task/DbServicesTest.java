@@ -49,7 +49,6 @@ public class DbServicesTest {
 
     @Test
     public void testAddAccountWithoutTransaction() {
-
         accountService.add(new Account(1l, "11111", 100000l, null));
         accountService.add(new Account(2l, "22222", 200000l, null));
 
@@ -61,7 +60,6 @@ public class DbServicesTest {
 
     @Test
     public void testAddAccountWithTransaction() {
-
         Account account1 = new Account();
         account1.setId(1l);
         account1.setAccountNumber("11111");
@@ -75,33 +73,27 @@ public class DbServicesTest {
         assertNotNull(transactionService.get(1l));
         assertNotNull(transactionService.get(2l));
         assertTrue(transactionService.getAll().size() == 2);
-
     }
 
     @Test(expected = ResourceNotFoundException.class)
-    public void testGetNotFoundAccount() {
+    public void testGetAccountNotFound() {
         accountService.get(1l);
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void testGetNotFoundTransaction() {
-        transactionService.get(1l);
-    }
-
     @Test(expected = ResourceAlreadyExistsException.class)
-    public void testAddDuplicateIdAccount() {
+    public void testAddAccountDuplicateId() {
         accountService.add(new Account(1l, "11111", 100000l, null));
         accountService.add(new Account(1l, "22222", 200000l, null));
     }
 
     @Test(expected = ResourceAlreadyExistsException.class)
-    public void testAddDuplicateAccountNumberAccount() {
+    public void testAddAccountDuplicateAccountNumber() {
         accountService.add(new Account(1l, "11111", 100000l, null));
         accountService.add(new Account(2l, "11111", 200000l, null));
     }
 
     @Test(expected = ResourceAlreadyExistsException.class)
-    public void testAddDuplicateTransaction() {
+    public void testAddTransactionDuplicateId() {
         transactionService.add(new Transaction(1l, 2000l, null));
         transactionService.add(new Transaction(1l, 2000l, null));
     }
@@ -121,7 +113,7 @@ public class DbServicesTest {
     }
 
     @Test(expected = ResourceNotFoundException.class)
-    public void testDeleteNotFoundAccount() {
+    public void testDeleteAccountNotFound() {
         accountService.delete(1l);
     }
 
@@ -149,6 +141,11 @@ public class DbServicesTest {
         assertTrue(transaction.getId() == 1l);
         assertTrue(transaction.getTransactionAmount() == 1000l);
 
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testGetTransactionNotFound() {
+        transactionService.get(1l);
     }
 
     @Test(expected = ResourcesDoNotMatchException.class)
@@ -188,7 +185,7 @@ public class DbServicesTest {
     }
 
     @Test(expected = ResourceAlreadyExistsException.class)
-    public void testAddExistingTransactionToAccount() {
+    public void testAddTransactionToAccountDuplicate() {
         Account account1 = new Account();
         account1.setId(1l);
         account1.setAccountNumber("11111");

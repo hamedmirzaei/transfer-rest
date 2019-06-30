@@ -2,6 +2,7 @@ package com.revolut.hm.task;
 
 import spark.utils.IOUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -28,7 +29,11 @@ public class ApiTestUtils {
                 os.close();
             }
             connection.connect();
-            String body = IOUtils.toString(connection.getInputStream());
+            String body = "";
+            try {
+                body = IOUtils.toString(connection.getInputStream());
+            } catch (Exception e) {
+            }
             return new TestResponse(connection.getResponseCode(), body);
         } catch (IOException e) {
             e.printStackTrace();
