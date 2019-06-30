@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class DbServicesTest {
@@ -136,7 +135,6 @@ public class DbServicesTest {
 
     @Test
     public void testGetTransactionOfAccount() {
-
         Account account1 = new Account();
         account1.setId(1l);
         account1.setAccountNumber("11111");
@@ -155,7 +153,6 @@ public class DbServicesTest {
 
     @Test(expected = ResourcesDoNotMatchException.class)
     public void testGetTransactionOfAccountDoNotMatch() {
-
         Account account1 = new Account();
         account1.setId(1l);
         account1.setAccountNumber("11111");

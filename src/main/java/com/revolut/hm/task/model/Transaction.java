@@ -1,10 +1,11 @@
 package com.revolut.hm.task.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "TRANSACTION")
-public class Transaction {
+public class Transaction implements Serializable {
 
     @Id
     @Column(name = "TRANSACTION_ID")

@@ -1,12 +1,13 @@
 package com.revolut.hm.task.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "ACCOUNT")
-public class Account {
+public class Account implements Serializable {
 
     @Id
     @Column(name = "ACCOUNT_ID")

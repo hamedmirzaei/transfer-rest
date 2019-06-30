@@ -18,6 +18,8 @@ All the data will be stored in an In-Memory `HSQLDB` database named `transferRes
 By simply executing `TransferRESTApp` class, the application starts listening on `localhost:8080` with the following
 API:
 
+* `GET /health`: health-check
+
 * `GET /accounts`: get all the accounts
 * `GET /accounts/:id`: get a single account
 * `POST /accounts`: save an account

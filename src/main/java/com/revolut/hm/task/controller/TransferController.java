@@ -1,6 +1,7 @@
 package com.revolut.hm.task.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.revolut.hm.task.exception.DeleteFailedException;
 import com.revolut.hm.task.exception.ResourceAlreadyExistsException;
 import com.revolut.hm.task.exception.ResourceNotFoundException;
@@ -8,8 +9,10 @@ import com.revolut.hm.task.exception.ResourcesDoNotMatchException;
 import com.revolut.hm.task.model.Account;
 import com.revolut.hm.task.model.Transaction;
 import com.revolut.hm.task.service.AccountService;
+import com.revolut.hm.task.utils.ExcludeProxiedFields;
 
 import javax.inject.Inject;
+import java.util.List;
 
 import static spark.Spark.*;
 
@@ -21,8 +24,8 @@ public class TransferController {
     public void startTransferRoutes() {
 
         port(8080);
-        Gson gson = new Gson();
-        get("/health", (req, res) -> "Hello World", gson::toJson);
+        Gson gson = new GsonBuilder().setExclusionStrategies(new ExcludeProxiedFields()).create();
+        get("/health", (req, res) -> "Hello World");
 
         handleExceptions();
 
@@ -56,8 +59,11 @@ public class TransferController {
 
             path("/:id/transactions", () -> {
                 // Get all transactions of an account
-                get("", "application/json", (request, response) ->
-                        accountService.get(Long.parseLong(request.params(":id"))).getTransactions(), gson::toJson);
+                get("", "application/json", (request, response) -> {
+                    List<Transaction> allTransactions = accountService.getAllTransactions(Long.parseLong(request.params(":id")));
+                    gson.toJson(allTransactions);
+                    return allTransactions;
+                }, gson::toJson);
 
                 // Get one transaction of an account
                 get("/:tid", "application/json", (request, response) ->
