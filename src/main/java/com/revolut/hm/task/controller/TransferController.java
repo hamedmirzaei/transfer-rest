@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.revolut.hm.task.exception.DeleteFailedException;
 import com.revolut.hm.task.exception.ResourceAlreadyExistsException;
 import com.revolut.hm.task.exception.ResourceNotFoundException;
+import com.revolut.hm.task.exception.ResourcesDoNotMatchException;
 import com.revolut.hm.task.model.Account;
 import com.revolut.hm.task.model.Transaction;
 import com.revolut.hm.task.service.AccountService;
@@ -23,7 +24,7 @@ public class TransferController {
         Gson gson = new Gson();
         get("/health", (req, res) -> "Hello World", gson::toJson);
 
-        exceptionHandling();
+        handleExceptions();
 
         // Account rest API
         path("/accounts", () -> {
@@ -75,8 +76,8 @@ public class TransferController {
                 }, gson::toJson);
 
                 // Delete a transaction of an account
-                delete("/:id", "application/json", (request, response) -> {
-                    accountService.delete(Long.parseLong(request.params(":id")));
+                delete("/:tid", "application/json", (request, response) -> {
+                    accountService.deleteTransaction(Long.parseLong(request.params(":id")), Long.parseLong(request.params(":tid")));
                     return "OK";
                 });
 
@@ -86,12 +87,21 @@ public class TransferController {
 
     }
 
-    private void exceptionHandling() {
+    private void handleExceptions() {
         // Using string/html
         notFound("<html><body><h1>Custom 404 handling</h1></body></html>");
 
         // Using string/html
         internalServerError("<html><body><h1>Custom 500 handling</h1></body></html>");
+
+        exception(ResourcesDoNotMatchException.class, (exception, request, response) -> {
+            response.body("<html><body><h1>" +
+                    exception.getResourceName1() + " with field " + exception.getFieldName1() +
+                    "=" + exception.getFieldValue1() + " doest not match by " +
+                    exception.getResourceName2() + " with field " + exception.getFieldName2() +
+                    "=" + exception.getFieldValue2() +
+                    " is already exists</h1></body></html>");
+        });
 
         exception(ResourceAlreadyExistsException.class, (exception, request, response) -> {
             response.body("<html><body><h1>" + exception.getResourceName() + " with field " + exception.getFieldName() +

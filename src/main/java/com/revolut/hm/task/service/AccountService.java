@@ -119,11 +119,12 @@ public class AccountService {
     }
 
     /**
-     * @throws ResourceNotFoundException    if the transaction does not exist.
+     * @throws ResourceNotFoundException    if the transaction or account does not exist.
      * @throws ResourcesDoNotMatchException if the transaction does not belong to account
      */
     @Transactional
     public Transaction updateTransaction(Long accountId, Transaction transactionDetails) throws ResourceNotFoundException, ResourcesDoNotMatchException {
+        Account account = get(accountId);
         Transaction transaction = transactionService.get(transactionDetails.getId());
 
         if (transaction.getAccount().getId() != accountId)
@@ -134,6 +135,23 @@ public class AccountService {
         return updatedTransaction;
     }
 
+    /**
+     * @throws ResourceNotFoundException    if the transaction or account does not exist.
+     * @throws DeleteFailedException        if the delete operation failed.
+     * @throws ResourcesDoNotMatchException if the transaction does not belong to account
+     */
+    @Transactional
+    public void deleteTransaction(Long accountId, Long transactionId) throws ResourceNotFoundException, DeleteFailedException, ResourcesDoNotMatchException {
+        Account account = get(accountId);
+        Transaction transaction = transactionService.get(transactionId);
+
+        if (transaction.getAccount().getId() != accountId)
+            throw new ResourcesDoNotMatchException("Account", "id", accountId, "Transaction", "id", transactionId);
+
+        transactionService.delete(transactionId);
+    }
+
+    @Transactional
     public void deleteAll() {
         accountRepository.deleteAll();
     }

@@ -1,5 +1,6 @@
 package com.revolut.hm.task.service;
 
+import com.revolut.hm.task.exception.DeleteFailedException;
 import com.revolut.hm.task.exception.ResourceAlreadyExistsException;
 import com.revolut.hm.task.exception.ResourceNotFoundException;
 import com.revolut.hm.task.model.Transaction;
@@ -44,18 +45,36 @@ public class TransactionService {
         return transactionRepository.save(transactionDetails);
     }
 
+    /**
+     * @throws ResourceNotFoundException if the transaction does not exist.
+     */
     @Transactional
-    public void deleteAll() {
-        transactionRepository.deleteAll();
-    }
-
-    @Transactional
-    public Transaction update(Transaction transactionDetails) {
+    public Transaction update(Transaction transactionDetails) throws ResourceNotFoundException {
         Transaction transaction = get(transactionDetails.getId());
 
         transaction.setTransactionAmount(transactionDetails.getTransactionAmount());
+        transaction.setAccount(transactionDetails.getAccount());
 
         Transaction updatedTransaction = transactionRepository.save(transaction);
         return updatedTransaction;
+    }
+
+    /**
+     * @throws ResourceNotFoundException if the transaction does not exist.
+     * @throws DeleteFailedException     if the delete operation failed.
+     */
+    @Transactional
+    public void delete(Long transactionId) throws ResourceNotFoundException, DeleteFailedException {
+        Transaction transaction = get(transactionId);
+        try {
+            transactionRepository.delete(transaction);
+        } catch (Exception e) {
+            throw new DeleteFailedException("Transaction", "id", transactionId);
+        }
+    }
+
+    @Transactional
+    public void deleteAll() {
+        transactionRepository.deleteAll();
     }
 }

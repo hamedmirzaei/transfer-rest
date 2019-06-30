@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class DbServicesTest {
@@ -261,6 +262,47 @@ public class DbServicesTest {
 
         Transaction transactionUpdated = accountService.getTransaction(1l, 1l);
         assertTrue(transaction.getTransactionAmount() == 3000l);
+    }
+
+
+    @Test
+    public void testDeleteTransactionOfAccount() {
+        Account account1 = new Account();
+        account1.setId(1l);
+        account1.setAccountNumber("11111");
+        account1.setBalance(1000000l);
+        account1.setTransactions(Arrays.asList(new Transaction(1l, 1000l, account1)));
+        accountService.add(account1);
+
+        assertTrue(accountService.get(1l).getTransactions().size() == 1);
+
+        accountService.deleteTransaction(1l, 1l);
+
+        assertTrue(accountService.get(1l).getTransactions().size() == 0);
+    }
+
+    @Test(expected = ResourcesDoNotMatchException.class)
+    public void testDeleteTransactionOfAccountDoNotMatch() {
+        Account account1 = new Account();
+        account1.setId(1l);
+        account1.setAccountNumber("11111");
+        account1.setBalance(1000000l);
+        account1.setTransactions(Arrays.asList(new Transaction(1l, 1000l, account1)));
+        accountService.add(account1);
+
+        Account account2 = new Account();
+        account2.setId(2l);
+        account2.setAccountNumber("22222");
+        account2.setBalance(2000000l);
+        account2.setTransactions(Arrays.asList(new Transaction(2l, 2000l, account2)));
+        accountService.add(account2);
+
+        accountService.deleteTransaction(1l, 2l);
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testDeleteTransactionOfAccountNotFound() {
+        accountService.deleteTransaction(1l, 1l);
     }
 
 }
