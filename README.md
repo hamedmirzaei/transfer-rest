@@ -10,8 +10,9 @@ This is a simple financial business Rest API implemented using SparkJava + Googl
 * [Automatic Test Framework] [`JUnit`](https://junit.org/junit5/)
 
 ## How it works
-This demo implements a simple financial business API. It has a simple data model of an `Account` with a `One-to-Many` 
-relationship to `Transaction`. 
+This demo implements a simple financial business Rest API. It has a simple data model of an `Account` with an `One-to-Many` 
+relationship to `Transaction`. Through Rest API you are able to request for any `CRUD` operation. Because of the `Transactional`
+annotation provided by `Google Guice Repository` all the CRUD operations are ACID-enabled. 
 All the data will be stored in an In-Memory `HSQLDB` database named `transferRestDB`. 
 
 ## How to run
